@@ -12,6 +12,9 @@ import com.mdd.api.dto.TopicDto;
 import com.mdd.api.model.Topic;
 import com.mdd.api.repository.TopicRepository;
 
+/**
+ * Service class for managing topics.
+ */
 @Service
 public class TopicService {
 
@@ -21,6 +24,11 @@ public class TopicService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Retrieves information about all topics.
+     *
+     * @return A list of TopicDto objects containing topic information
+     */
     public List<TopicDto> getTopicsInfo() {
         List<Topic> topics = topicRepository.findAll();
         return topics.stream()
@@ -28,6 +36,12 @@ public class TopicService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a topic by its ID.
+     *
+     * @param id The ID of the topic to retrieve
+     * @return An Optional containing the Topic if found, or empty if not found
+     */
     public Optional<Topic> getTopicById(Long id) {
         return topicRepository.findById(id);
     }
