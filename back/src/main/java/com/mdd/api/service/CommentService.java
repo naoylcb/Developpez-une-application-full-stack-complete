@@ -13,10 +13,14 @@ import com.mdd.api.model.Comment;
 import com.mdd.api.model.Post;
 import com.mdd.api.dto.CommentDto;
 import com.mdd.api.dto.CreateCommentDto;
+import com.mdd.api.exceptions.NotFoundException;
 import com.mdd.api.model.AppUser;
 import com.mdd.api.service.AppUserService;
 import com.mdd.api.service.PostService;
 
+/**
+ * Service class for managing comments.
+ */
 @Service
 public class CommentService {
 
@@ -32,18 +36,37 @@ public class CommentService {
     @Autowired
     private PostService postService;
 
-    public List<CommentDto> getCommentsByPostId(Long postId) {
-        Post post = postService.getPostById(postId).orElseThrow();
+    /**
+     * Retrieves all comments for a specific post, sorted by creation date in
+     * descending order.
+     *
+     * @param postId The ID of the post to get comments for
+     * @return A list of CommentDto objects containing the comments
+     * @throws NotFoundException if the post is not found
+     */
+    public List<CommentDto> getCommentsByPostId(Long postId) throws NotFoundException {
+        Post post = postService.getPostById(postId).orElseThrow(() -> new NotFoundException("Article non trouvé"));
         List<Comment> comments = commentRepository.findByPost(post);
+
         return comments.stream()
                 .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
                 .map(comment -> modelMapper.map(comment, CommentDto.class))
                 .collect(Collectors.toList());
     }
 
-    public CommentDto createComment(Authentication authentication, CreateCommentDto createCommentDto) {
-        AppUser author = appUserService.getUserByEmail(authentication.getName()).orElseThrow();
-        Post post = postService.getPostById(createCommentDto.getPostId()).orElseThrow();
+    /**
+     * Creates a new comment for a post.
+     *
+     * @param email            The email address of the user creating the comment
+     * @param createCommentDto The information about the comment to create
+     * @return A CommentDto containing the created comment information
+     * @throws NotFoundException if either the user or post is not found
+     */
+    public CommentDto createComment(String email, CreateCommentDto createCommentDto) throws NotFoundException {
+        AppUser author = appUserService.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Utilisateur non trouvé"));
+        Post post = postService.getPostById(createCommentDto.getPostId())
+                .orElseThrow(() -> new NotFoundException("Article non trouvé"));
 
         Comment comment = new Comment();
         comment.setContent(createCommentDto.getContent());
