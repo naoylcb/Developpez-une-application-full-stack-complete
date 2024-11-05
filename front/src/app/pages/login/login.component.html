@@ -1,0 +1,39 @@
+<button mat-icon-button routerLink="/">
+  <mat-icon>arrow_back</mat-icon>
+</button>
+
+<form
+  [formGroup]="loginForm"
+  (ngSubmit)="onSubmit()"
+  class="flex flex-col justify-center items-center"
+>
+  <h2>Se connecter</h2>
+
+  <mat-form-field appearance="outline" class="w-full max-w-80">
+    <mat-label>E-mail</mat-label>
+    <input matInput formControlName="email" type="email" required />
+    <mat-error *ngIf="loginForm.get('email')?.hasError('required')"
+      >Ce champ est requis</mat-error
+    >
+    <mat-error *ngIf="loginForm.get('email')?.hasError('email')"
+      >Entrez une adresse e-mail valide</mat-error
+    >
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full max-w-80">
+    <mat-label>Mot de passe</mat-label>
+    <input matInput formControlName="password" type="password" required />
+    <mat-error *ngIf="loginForm.get('password')?.hasError('required')"
+      >Ce champ est requis</mat-error
+    >
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    [disabled]="!loginForm.valid"
+  >
+    Se connecter
+  </button>
+</form>
