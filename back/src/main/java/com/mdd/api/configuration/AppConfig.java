@@ -2,29 +2,23 @@ package com.mdd.api.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.modelmapper.ModelMapper;
 
+/**
+ * Configuration class for application-wide beans and settings.
+ */
 @Configuration
 public class AppConfig {
 
+    /**
+     * Creates and configures a ModelMapper bean for object mapping.
+     * ModelMapper is used to map between DTOs and entity objects throughout the application.
+     *
+     * @return Configured ModelMapper instance
+     */
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(false);
-        config.addAllowedOrigin("*"); // Allow all origins
-        config.addAllowedHeader("*"); // Allow all headers
-        config.addAllowedMethod("*"); // Allow all HTTP methods
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
     }
 
 }

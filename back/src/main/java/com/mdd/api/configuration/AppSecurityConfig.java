@@ -18,9 +18,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.mdd.api.service.AppUserService;
 
+import java.util.Arrays;
+
+/**
+ * Configuration class for application security settings.
+ * Handles JWT authentication, CORS configuration, and other security-related beans.
+ */
 @Configuration
 @EnableWebSecurity
 public class AppSecurityConfig {
@@ -28,16 +37,28 @@ public class AppSecurityConfig {
     @Value("${security.jwt.key}")
     private String jwtKey;
 
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
+
     @Autowired
     private AppUserService appUserService;
 
+    /**
+     * Configures the security filter chain for HTTP requests.
+     * Sets up CSRF, CORS, authentication requirements, and JWT resource server.
+     *
+     * @param http HttpSecurity object to configure
+     * @return Configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf().disable()
+                .cors(Customizer.withDefaults())
                 .authorizeRequests()
-                    .antMatchers("/login", "/register", "/error/**").permitAll()
-                    .anyRequest().authenticated()
+                .antMatchers("/login", "/register", "/error/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -45,17 +66,48 @@ public class AppSecurityConfig {
                 .build();
     }
 
+    /**
+     * Creates a JWT decoder using the configured secret key.
+     * Uses HS256 algorithm for JWT signature verification.
+     *
+     * @return Configured JwtDecoder
+     */
     @Bean
     public JwtDecoder jwtDecoder() {
         SecretKeySpec key = new SecretKeySpec(this.jwtKey.getBytes(), "");
         return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
     }
 
+    /**
+     * Creates an authentication manager with a DAO authentication provider.
+     * Configures the user details service and password encoder.
+     *
+     * @return Configured AuthenticationManager
+     */
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(appUserService);
         provider.setPasswordEncoder(new BCryptPasswordEncoder());
         return new ProviderManager(provider);
+    }
+
+    /**
+     * Configures CORS settings for the application.
+     * Sets allowed origins, methods, headers, and credentials.
+     *
+     * @return Configured CorsConfigurationSource
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
