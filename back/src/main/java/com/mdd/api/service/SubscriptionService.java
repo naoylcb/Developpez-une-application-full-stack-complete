@@ -12,7 +12,12 @@ import com.mdd.api.model.AppUser;
 import com.mdd.api.model.Subscription;
 import com.mdd.api.model.Topic;
 import com.mdd.api.repository.SubscriptionRepository;
+import com.mdd.api.exceptions.BadRequestException;
+import com.mdd.api.exceptions.NotFoundException;
 
+/**
+ * Service class for managing user subscriptions to topics.
+ */
 @Service
 public class SubscriptionService {
 
@@ -28,20 +33,40 @@ public class SubscriptionService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<TopicDto> getUserSubscriptions(String email) {
-        AppUser appUser = appUserService.getUserByEmail(email).orElseThrow();
-        List<Subscription> subscriptions = subscriptionRepository.findAll();
+    /**
+     * Retrieves all topics that a user is subscribed to.
+     *
+     * @param email The email address of the user
+     * @return A list of TopicDto objects representing the topics the user is subscribed to
+     * @throws NotFoundException if the user is not found
+     */
+    public List<TopicDto> getUserSubscriptions(String email) throws NotFoundException {
+        AppUser appUser = appUserService.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Utilisateur non trouvé"));
+        List<Subscription> subscriptions = subscriptionRepository.findByUser(appUser);
 
         return subscriptions.stream()
-                .filter(subscription -> subscription.getUser().getId().equals(appUser.getId()))
                 .map(subscription -> subscription.getTopic())
                 .map(topic -> modelMapper.map(topic, TopicDto.class))
                 .collect(Collectors.toList());
     }
 
-    public void subscribeToTopic(String email, Long topicId) {
-        AppUser appUser = appUserService.getUserByEmail(email).orElseThrow();
-        Topic topic = topicService.getTopicById(topicId).orElseThrow();
+    /**
+     * Subscribes a user to a specific topic.
+     *
+     * @param email The email address of the user
+     * @param topicId The ID of the topic to subscribe to
+     * @throws NotFoundException if either the user or topic is not found
+     * @throws BadRequestException if the user is already subscribed to the topic
+     */
+    public void subscribeToTopic(String email, Long topicId) throws NotFoundException, BadRequestException {
+        AppUser appUser = appUserService.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Utilisateur non trouvé"));
+        Topic topic = topicService.getTopicById(topicId).orElseThrow(() -> new NotFoundException("Thème non trouvé"));
+
+        if (subscriptionRepository.findByUserAndTopic(appUser, topic).isPresent()) {
+            throw new BadRequestException("Vous êtes déjà abonné à ce thème !");
+        }
 
         Subscription subscription = new Subscription();
         subscription.setUser(appUser);
@@ -49,9 +74,22 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
-    public void unsubscribeFromTopic(String email, Long topicId) {
-        AppUser appUser = appUserService.getUserByEmail(email).orElseThrow();
-        Topic topic = topicService.getTopicById(topicId).orElseThrow();
+    /**
+     * Unsubscribes a user from a specific topic.
+     *
+     * @param email The email address of the user
+     * @param topicId The ID of the topic to unsubscribe from
+     * @throws NotFoundException if either the user or topic is not found
+     * @throws BadRequestException if the user is not subscribed to the topic
+     */
+    public void unsubscribeFromTopic(String email, Long topicId) throws NotFoundException, BadRequestException {
+        AppUser appUser = appUserService.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Utilisateur non trouvé"));
+        Topic topic = topicService.getTopicById(topicId).orElseThrow(() -> new NotFoundException("Thème non trouvé"));
+
+        if (!subscriptionRepository.findByUserAndTopic(appUser, topic).isPresent()) {
+            throw new BadRequestException("Vous n'êtes pas abonné à ce thème !");
+        }
 
         Subscription subscription = subscriptionRepository.findByUserAndTopic(appUser, topic).orElseThrow();
         subscriptionRepository.delete(subscription);
