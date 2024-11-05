@@ -1,0 +1,52 @@
+<div class="m-5 md:m-10" *ngIf="post">
+  <div class="flex items-center gap-2 mb-6">
+    <button mat-icon-button routerLink="/feed">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <h1 class="!m-0">{{ post.title }}</h1>
+  </div>
+
+  <div class="md:mx-10 space-y-6">
+    <div class="flex justify-between max-w-xs">
+      <span>{{ post.createdAt | date : "dd/MM/yyyy" }}</span>
+      <span>{{ post.author.username }}</span>
+      <span>{{ post.topic.name }}</span>
+    </div>
+
+    <p>{{ post.content }}</p>
+
+    <hr class="border-black" />
+
+    <h2>Commentaires</h2>
+
+    <div
+      *ngFor="let comment of comments"
+      class="flex flex-col md:flex-row-reverse items-end md:justify-center md:items-start md:gap-10"
+    >
+      <p class="w-full max-w-xl p-4 bg-slate-200 rounded-xl">
+        {{ comment.content }}
+      </p>
+
+      <span>{{ comment.author.username }}</span>
+    </div>
+
+    <form
+      [formGroup]="commentForm"
+      (ngSubmit)="onSubmit()"
+      class="flex items-center md:gap-6 border md:border-0 border-black rounded-lg md:rounded-none"
+    >
+      <textarea
+        matInput
+        formControlName="content"
+        placeholder="Ecrivez ici votre commentaire"
+        required
+        class="w-full p-3 md:border md:border-black rounded-lg"
+      ></textarea>
+
+      <button mat-icon-button type="submit" class="text-purple-600 -rotate-45">
+        <mat-icon>send</mat-icon>
+      </button>
+    </form>
+  </div>
+</div>
