@@ -1,0 +1,48 @@
+<button mat-icon-button routerLink="/">
+  <mat-icon>arrow_back</mat-icon>
+</button>
+
+<form
+  [formGroup]="postForm"
+  (ngSubmit)="onSubmit()"
+  class="flex flex-col justify-center items-center"
+>
+  <h2>Créer un nouvel article</h2>
+
+  <mat-form-field appearance="outline" class="w-full max-w-80">
+    <mat-label>Thème</mat-label>
+    <mat-select formControlName="topicId" required>
+      <mat-option *ngFor="let topic of topics" [value]="topic.id">
+        {{ topic.name }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="postForm.get('topicId')?.hasError('required')"
+      >Ce champ est requis</mat-error
+    >
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full max-w-80">
+    <mat-label>Titre</mat-label>
+    <input matInput formControlName="title" type="text" required />
+    <mat-error *ngIf="postForm.get('title')?.hasError('required')"
+      >Ce champ est requis</mat-error
+    >
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full max-w-80">
+    <mat-label>Contenu</mat-label>
+    <textarea matInput formControlName="content" required rows="10"></textarea>
+    <mat-error *ngIf="postForm.get('content')?.hasError('required')"
+      >Ce champ est requis</mat-error
+    >
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    [disabled]="!postForm.valid"
+  >
+    Créer
+  </button>
+</form>
