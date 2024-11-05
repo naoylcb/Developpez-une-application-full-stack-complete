@@ -1,0 +1,13 @@
+<div class="bg-slate-200 rounded-md m-4 p-4 space-y-4">
+  <h2>{{ topic.name }}</h2>
+  <p>{{ topic.description }}</p>
+  <div class="text-center">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="isSubscribed ? unsubscribe() : subscribe()"
+    >
+      {{ isSubscribed ? "Se désabonner" : "S'abonner" }}
+    </button>
+  </div>
+</div>
