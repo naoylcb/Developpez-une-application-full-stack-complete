@@ -81,4 +81,22 @@ export class MeComponent implements OnInit {
     this.sessionService.logOut();
     this.router.navigate(['/login']);
   }
+
+  public unsubscribe(topicId: number) {
+    this.subscriptionService.unsubscribeFromTopic(topicId).subscribe({
+      next: () => {
+        this.snackBar.open('Vous êtes désabonné de ce thème', '', {
+          panelClass: ['bg-green-700'],
+        });
+
+        this.getUserSubscriptions();
+      },
+      error: (error: any) => {
+        const message = error.error.message || 'Erreur lors du désabonnement';
+        this.snackBar.open(message, '', {
+          panelClass: ['bg-red-700'],
+        });
+      },
+    });
+  }
 }

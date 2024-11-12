@@ -1,7 +1,7 @@
 <div class="md:m-10">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div *ngFor="let topic of topics">
-      <app-topic-card [topic]="topic" [isSubscribed]="false"></app-topic-card>
+      <app-topic-card [topic]="topic" [text]="S'abonner" (action)="subscribe($event)"></app-topic-card>
     </div>
   </div>
 </div>

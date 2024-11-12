@@ -57,7 +57,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div *ngFor="let topic of topics">
-      <app-topic-card [topic]="topic" [isSubscribed]="true"></app-topic-card>
+      <app-topic-card [topic]="topic" [text]="Se désabonner" (action)="unsubscribe($event)"></app-topic-card>
     </div>
   </div>
 </div>

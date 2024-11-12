@@ -5,9 +5,9 @@
     <button
       mat-raised-button
       color="primary"
-      (click)="isSubscribed ? unsubscribe() : subscribe()"
+      (click)="handleAction()"
     >
-      {{ isSubscribed ? "Se désabonner" : "S'abonner" }}
+      {{ text }}
     </button>
   </div>
 </div>
