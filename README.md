@@ -9,7 +9,7 @@
 
 ## Database
 
-Create a mysql database and import the schema from `script.sql`
+Create a mysql database and implement database informations in `application.properties` (back).
 
 ## Start the project
 
