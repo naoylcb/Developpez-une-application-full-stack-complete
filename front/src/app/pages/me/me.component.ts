@@ -15,6 +15,7 @@ import { Session } from '../../interfaces/session.interface';
 export class MeComponent implements OnInit {
   public userForm: FormGroup;
   public topics!: Topic[];
+  public topicButtonText: string = 'Se désabonner';
 
   constructor(
     private fb: FormBuilder,

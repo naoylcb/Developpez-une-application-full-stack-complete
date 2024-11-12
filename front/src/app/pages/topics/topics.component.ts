@@ -10,6 +10,7 @@ import { Topic } from '../../interfaces/topic.interface';
 })
 export class TopicsComponent implements OnInit {
   public topics!: Topic[];
+  public topicButtonText: string = "S'abonner";
 
   constructor(
     private topicService: TopicService,
